@@ -58,7 +58,7 @@ const parsePayload = (payload: string, traceId: string, log: ToolingLog): string
 const combineHeaderFieldValues = (headers: Headers) => {
   return Object.assign(
     {},
-    ...Object.keys(headers).map((key) => ({ [key]: headers[key].join(', ') }))
+    ...Object.keys(headers).map((key) => ({ [key.toLowerCase()]: headers[key].join(', ') }))
   );
 };
 

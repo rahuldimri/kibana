@@ -6,15 +6,15 @@
  * Side Public License, v 1.
  */
 
-import {run} from '@kbn/dev-cli-runner';
+import { run } from '@kbn/dev-cli-runner';
 // import { createFlagError, createFailError } from '@kbn/dev-cli-errors';
-import {REPO_ROOT} from '@kbn/utils';
+import { REPO_ROOT } from '@kbn/utils';
 import yaml from 'js-yaml';
-import {readFileSync} from 'fs';
-import {resolve} from 'path';
-import {getPrChanges} from '../../../.buildkite/pipeline-utils';
-import {filter, from} from 'rxjs';
-import {pluck} from 'rxjs/operators';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { getPrChanges } from '../../../.buildkite/pipeline-utils';
+import { filter, from } from 'rxjs';
+import { pluck } from 'rxjs/operators';
 
 const flags = {
   string: ['path'],
@@ -37,19 +37,11 @@ blah blah blah
 }
 
 const roots = () =>
-  yaml
-    .load(
-      readFileSync(
-        resolveRoot('src/dev/own_tests_ran/test_roots.yml'), 'utf8'
-      )
-    )
-    .general;
+  yaml.load(readFileSync(resolveRoot('src/dev/own_tests_ran/test_roots.yml'), 'utf8')).general;
 
-const isTest = (regexes) => (filePath) =>
-  regexes
-    .some((re) => re.test(filePath));
+const isTest = (regexes) => (filePath) => regexes.some((re) => re.test(filePath));
 
-async function process({flags, log}) {
+async function process({ flags, log }) {
   log.info('\n### Running runCheckOwnTestsRanCli()');
 
   console.log(`\n### flags: \n${JSON.stringify(flags, null, 2)}`);
@@ -62,13 +54,10 @@ async function process({flags, log}) {
   // TODO-TRE: This link mentions it's possible: https://buildkite.com/docs/apis/rest-api/jobs#get-a-jobs-log-output
 
   const $ = from(await getPrChanges());
-  $.pipe(
-    pluck('filename'),
-    filter(isTest(roots().map((x) => new RegExp(x)))))
-    .subscribe({
-      next: (x) => console.log(`\n### x2: \n\t${x}`),
-      // next: noop,
-      error: (x) => console.error(`\n### x: \n\t${x}`),
-      complete: () => console.log('\n### Complete'),
-    });
+  $.pipe(pluck('filename'), filter(isTest(roots().map((x) => new RegExp(x))))).subscribe({
+    next: (x) => console.log(`\n### x2: \n\t${x}`),
+    // next: noop,
+    error: (x) => console.error(`\n### x: \n\t${x}`),
+    complete: () => console.log('\n### Complete'),
+  });
 }
